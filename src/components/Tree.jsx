@@ -4,6 +4,7 @@ import ToggleBtn from "./ToggleBtn";
 import Checkbox from "./Checkbox";
 import Label from "./Label";
 import "../styles/tree.css";
+import {deepClone} from "../utils/deepClone";
 
 function Tree(props) {
   const [root, setRoot] = useState(null);
@@ -20,6 +21,26 @@ function Tree(props) {
       setRoot(rootData);
     })();
   }, []);
+
+  function runNodeSync(parent) {
+    let numOfChildren = parent.children.length;
+    let i = 0;
+    parent.children.forEach((child) => {
+      let isSelected;
+      if(child.children.length > 0) {
+        isSelected = runNodeSync(child);
+      } else {
+        isSelected = child.isSelected;
+      }
+
+      if(isSelected) {
+        i++;
+      }
+    });
+
+    parent.isSelected = numOfChildren === i ? true : false;
+    return parent.isSelected;
+  }
 
   function deselectAllChildNodes(nodes) {
     nodes.forEach((node) => {
@@ -53,8 +74,17 @@ function Tree(props) {
       parent.isExpanded = true;
     }
 
-    let newRoot = Object.assign([], root);
-    setRoot(newRoot);
+    runNodeSync(root[0]);
+    /*
+    * Temprory added this behaviour (works but not ideal implementation)
+    * Facing issue related to either key mapping with virtual dom
+    * Need to work on it
+    */
+    let newRoot = deepClone(root);
+    setTimeout(() => {
+      setRoot(newRoot);
+    }, 0);
+    setRoot(null);
   }
 
   function collapseAllChild(nodes) {
