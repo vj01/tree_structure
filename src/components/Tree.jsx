@@ -39,6 +39,7 @@ function Tree(props) {
     });
 
     parent.isSelected = numOfChildren === i ? true : false;
+    parent.isPartial = i > 0 && numOfChildren !== i ? true : false;
     return parent.isSelected;
   }
 
@@ -122,14 +123,14 @@ function Tree(props) {
       let toggleType = leaf.children.length > 0 ? (leaf.isExpanded ? "collapse" : "expand") : "";
       return <div className={`node-div ${leaf.isShow == true || isFirst ? "node-expanded" : "node-collapsed"}`} key={leaf.source + index} >
         <div style={{display: "flex"}}>
-            <ToggleBtn type={toggleType} onToggleClick={() => {toggleNode(leaf, leaf.isExpanded)}}/>
-            <Checkbox isChecked={leaf.isSelected} onCheckboxSelect={() => {selectNode(leaf, leaf.isSelected)}} />
-            <Label title={leaf.source}/>
-          </div>
-          <div>
-            {leaf.children.length > 0 && createTree(leaf.children)}
-          </div>
-        </div>;
+          <ToggleBtn type={toggleType} onToggleClick={() => {toggleNode(leaf, leaf.isExpanded)}}/>
+          <Checkbox isChecked={leaf.isSelected} isPartialSelection={leaf.isPartial} onCheckboxSelect={() => {selectNode(leaf, leaf.isSelected)}} />
+          <Label title={leaf.source}/>
+        </div>
+        <div>
+          {leaf.children.length > 0 && createTree(leaf.children)}
+        </div>
+      </div>;
     });
 
     return (<div>
